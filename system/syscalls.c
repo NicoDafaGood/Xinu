@@ -28,9 +28,19 @@ uint32 do_syscall(uint32 id, uint32 args_count, ...) {
 
 	// You may need to pass these veriables to kernel side:
 
-	uint32 *ptr_return_value = return_value;
-	args_count;
-	uint32 *args_array = 1 + &args_count;
+	uint32 *ptr_return_value = &return_value;
+	// args_count;
+	uint32 *args_array = &args_count + args_count;
+	const void * funcaddr  = syscalls[id];
+
+	__asm__ volatile( "movl  %0,%%esi\n"
+           "movl  %1,%%ebx\n"
+		   "movl  %2,%%ecx\n"
+		   "movl  %3,%%edx\n"
+		   "int   $0x21\n"
+          :
+          :"g"(funcaddr),"g"(ptr_return_value),"g"(args_count),"g"(args_array)      /* input */
+          :"esi","ebx","ecx","edx");
 
 	// Your code here ...
 

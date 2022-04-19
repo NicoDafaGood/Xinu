@@ -52,6 +52,7 @@ struct procent {		/* Entry in the process table		*/
 	umsg32	prmsg;		/* Message sent to this process		*/
 	bool8	prhasmsg;	/* Nonzero iff msg is valid		*/
 	int16	prdesc[NDESC];	/* Device descriptors for process	*/
+	char   *prkstkptr; 
 };
 
 /* Marker for the top of a process stack (used to help detect overflow)	*/
@@ -60,3 +61,35 @@ struct procent {		/* Entry in the process table		*/
 extern	struct	procent proctab[];
 extern	int32	prcount;	/* Currently active processes		*/
 extern	pid32	currpid;	/* Currently executing process		*/
+struct __attribute__((packed))  tss_entry_struct_t
+{
+    uint32 prev_tss; // The previous TSS - with hardware task switching these form a kind of backward linked list.
+    uint32 esp0;     // The stack pointer to load when changing to kernel mode.
+    uint32 ss0;      // The stack segment to load when changing to kernel mode.
+                       //
+    uint32 esp1;     // esp and ss 1 and 2 would be used when switching to rings 1 or 2.
+    uint32 ss1;
+    uint32 esp2;
+    uint32 ss2;
+    uint32 cr3;
+    uint32 eip;
+    uint32 eflags;
+    uint32 eax;
+    uint32 ecx;
+    uint32 edx;
+    uint32 ebx;
+    uint32 esp;
+    uint32 ebp;
+    uint32 esi;
+    uint32 edi;
+    uint32 es;
+    uint32 cs;
+    uint32 ss;
+    uint32 ds;
+    uint32 fs;
+    uint32 gs;
+    uint32 ldt;
+    uint16 trap;
+    uint16 iomap_base;
+    char redirect[32];
+};

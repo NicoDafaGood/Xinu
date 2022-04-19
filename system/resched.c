@@ -4,6 +4,7 @@
 
 struct	defer	Defer;
 
+extern struct tss_entry_struct_t tss_array[];
 /*------------------------------------------------------------------------
  *  resched  -  Reschedule processor to highest priority eligible process
  *------------------------------------------------------------------------
@@ -41,6 +42,8 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	ptnew = &proctab[currpid];
 	ptnew->prstate = PR_CURR;
 	preempt = QUANTUM;		/* Reset time slice for process	*/
+	// tss_array[0].esp0 = ptnew->prstkptr;
+	// (tss_array);
 	ctxsw(&ptold->prstkptr, &ptnew->prstkptr);
 
 	/* Old process returns here when resumed */

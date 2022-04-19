@@ -30,7 +30,7 @@ struct __attribute__ ((__packed__)) sd {
 	unsigned char	sd_hibase;
 };
 
-#define	NGD			4	/* Number of global descriptor entries	*/
+#define	NGD			8	/* Number of global descriptor entries	*/
 #define FLAGS_GRANULARITY	0x80
 #define FLAGS_SIZE		0x40
 #define	FLAGS_SETTINGS		(FLAGS_GRANULARITY | FLAGS_SIZE)
@@ -45,6 +45,15 @@ struct sd gdt_copy[NGD] = {
 {       0xffff,          0,           0,      0x92,         0xcf,        0, },
 /* 3rd, Kernel Stack Segment */
 {       0xffff,          0,           0,      0x92,         0xcf,        0, },
+/* 4th, User Code Segment */
+{       0xffff,          0,           0,      0xfa,         0xc0,        0, },
+/* 5th, User Data Segment */
+{       0xffff,          0,           0,      0xf2,         0xc0,        0, },
+/* 6th, User Stack Segment */
+{       0xffff,          0,           0,      0xf2,         0xc0,        0, },
+/* 7th, TSS */
+{       0xffff,          0,           0,      0x89,         0x00,        0, },
+
 };
 
 extern	struct	sd gdt[];	/* Global segment table			*/
@@ -150,6 +159,10 @@ void	meminit(void) {
  * setsegs  -  Initialize the global segment table
  *------------------------------------------------------------------------
  */
+
+
+struct tss_entry_struct_t tss_array[2];
+
 void	setsegs()
 {
 	extern int	etext;
@@ -172,5 +185,31 @@ void	setsegs()
 	psd->sd_lolimit = ds_end;
 	psd->sd_hilim_fl = FLAGS_SETTINGS | ((ds_end >> 16) & 0xff);
 
+
+	psd = &gdt_copy[4];	/* Kernel code segment: identity map from address
+				   0 to etext */
+	np = ((int)&etext - 0 + PAGE_SIZE-1) / PAGE_SIZE;	/* Number of code pages */
+	psd->sd_lolimit = np;
+	psd->sd_hilim_fl = FLAGS_SETTINGS | ((np >> 16) & 0xff);
+
+	psd = &gdt_copy[5];	/* Kernel data segment */
+	psd->sd_lolimit = ds_end;
+	psd->sd_hilim_fl = FLAGS_SETTINGS | ((ds_end >> 16) & 0xff);
+
+	psd = &gdt_copy[6];	/* Kernel stack segment */
+	psd->sd_lolimit = ds_end;
+	psd->sd_hilim_fl = FLAGS_SETTINGS | ((ds_end >> 16) & 0xff);
+
+
+	psd = &gdt_copy[7];	/* USER TSS*/
+	memset(&tss_array[0], 0, sizeof(struct tss_entry_struct_t));
+    tss_array[0].iomap_base = sizeof(struct tss_entry_struct_t);
+	tss_array[0].ss0 = 0x3<<3;
+	tss_array[0].esp0 = 0;
+
+	psd->sd_lolimit = sizeof(struct tss_entry_struct_t);
+	psd->sd_hilim_fl = ((sizeof(struct tss_entry_struct_t) & (0xf << 16)) >> 16);
+	psd->sd_hibase = ((uint32)&tss_array[0] & (0xff << 24)) >> 24;
+	psd->sd_lobase = (uint32)&tss_array[0] ;
 	memcpy(gdt, gdt_copy, sizeof(gdt_copy));
 }

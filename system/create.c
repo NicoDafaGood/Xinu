@@ -1,7 +1,7 @@
 /* create.c - create, newpid */
 
 #include <xinu.h>
-
+extern	void * ret_k2u();
 local	int newpid();
 
 /*------------------------------------------------------------------------
@@ -17,20 +17,21 @@ pid32	create(
 	  ...
 	)
 {
-	uint32		savsp, *pushsp;
+	uint32		savsp, *pushsp, savusp;
 	intmask 	mask;    	/* Interrupt mask		*/
 	pid32		pid;		/* Stores new process id	*/
 	struct	procent	*prptr;		/* Pointer to proc. table entry */
 	int32		i;
 	uint32		*a;		/* Points to list of args	*/
-	uint32		*saddr;		/* Stack address		*/
+	uint32		*saddr, *usaddr;		/* Stack address		*/
 
 	mask = disable();
 	if (ssize < MINSTK)
 		ssize = MINSTK;
 	ssize = (uint32) roundmb(ssize);
 	if ( (priority < 1) || ((pid=newpid()) == SYSERR) ||
-	     ((saddr = (uint32 *)getstk(ssize)) == (uint32 *)SYSERR) ) {
+	     ((saddr = (uint32 *)getstk(ssize)) == (uint32 *)SYSERR) || 
+		 ((usaddr = (uint32 *)getstk(ssize)) == (uint32 *)SYSERR) ) {
 		restore(mask);
 		return SYSERR;
 	}
@@ -55,17 +56,30 @@ pid32	create(
 	prptr->prdesc[1] = CONSOLE;
 	prptr->prdesc[2] = CONSOLE;
 
-	/* Initialize stack as if the process was called		*/
+
+	/*initialize user stack */
+	*usaddr = STACKMAGIC;
+	a = (uint32 *)(&nargs + 1);	/* Start of args		*/
+	a += nargs -1;			/* Last argument		*/
+	for ( ; nargs > 0 ; nargs--)	/* Machine dependent; copy args	*/
+		*--usaddr = *a--;	/* onto created process's stack	*/
+
+	*--usaddr = (long)INITRET;
+	savusp = usaddr;
+	prptr->prstkptr = usaddr;
+	/* Initialize kernel stack as if the process was called		*/
 
 	*saddr = STACKMAGIC;
 	savsp = (uint32)saddr;
 
 	/* Push arguments */
-	a = (uint32 *)(&nargs + 1);	/* Start of args		*/
-	a += nargs -1;			/* Last argument		*/
-	for ( ; nargs > 0 ; nargs--)	/* Machine dependent; copy args	*/
-		*--saddr = *a--;	/* onto created process's stack	*/
+	
 	*--saddr = (long)INITRET;	/* Push on return address	*/
+
+	*--saddr = 0x33;
+	*--saddr = savusp;
+	*--saddr = 0x00000200;
+	*--saddr = 0x23;
 
 	/* The following entries on the stack must match what ctxsw	*/
 	/*   expects a saved process state to contain: ret address,	*/
@@ -75,10 +89,11 @@ pid32	create(
 					/*   half-way through a call to	*/
 					/*   ctxsw that "returns" to the*/
 					/*   new process		*/
+	*--saddr = (long)ret_k2u;
 	*--saddr = savsp;		/* This will be register ebp	*/
 					/*   for process exit		*/
 	savsp = (uint32) saddr;		/* Start of frame for ctxsw	*/
-	*--saddr = 0x00000200;		/* New process runs with	*/
+	*--saddr = 0x00000000;		/* New process runs with	*/
 					/*   interrupts enabled		*/
 
 	/* Basically, the following emulates an x86 "pushal" instruction*/

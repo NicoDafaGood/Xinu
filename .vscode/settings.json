@@ -1,0 +1,23 @@
+{
+    "files.associations": {
+        "xinu.h": "c",
+        "queue.h": "c",
+        "process.h": "c",
+        "kernel.h": "c",
+        "interrupt.h": "c",
+        "ports.h": "c",
+        "tty.h": "c",
+        "file.h": "c",
+        "name.h": "c",
+        "shell.h": "c",
+        "prototypes.h": "c",
+        "delay.h": "c",
+        "uart.h": "c",
+        "device.h": "c",
+        "clock.h": "c",
+        "semaphore.h": "c",
+        "date.h": "c",
+        "memory.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "Enabled"
+}

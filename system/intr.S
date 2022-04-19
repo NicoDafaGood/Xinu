@@ -470,6 +470,21 @@ _Xint46:
 	pushl	$46
 	jmp	Xtrap
 
+	.globl  syscall_handler
+syscall_handler:
+START_1:
+	cmpl 	$0, %ecx
+	je   	END_1
+	pushl	(%edx)
+	addl  	$-4, %edx
+	addl  	$-1, %ecx
+	jmp		START_1
+END_1:
+	pushl	%ebx
+	call 	%esi
+	popl  	%ebx
+	movl	%eax, (%ebx)
+	iret
 
 
 /*------------------------------------------------------------------------

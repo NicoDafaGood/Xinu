@@ -14,6 +14,7 @@ extern	void main(void);	/* Main is the first process created	*/
 static	void sysinit(); 	/* Internal system initialization	*/
 extern	void meminit(void);	/* Initializes the free memory list	*/
 local	process startup(void);	/* Process to finish startup tasks	*/
+extern  void syscall_handler(void);
 
 /* Declarations of major kernel variables */
 
@@ -49,10 +50,11 @@ void	nulluser()
 	struct	memblk	*memptr;	/* Ptr to memory block		*/
 	uint32	free_mem;		/* Total amount of free memory	*/
 	
+	set_evec(0x21, (uint32)syscall_handler);
+
 	/* Initialize the system */
 
 	sysinit();
-
 	/* Output Xinu memory layout */
 	free_mem = 0;
 	for (memptr = memlist.mnext; memptr != NULL;

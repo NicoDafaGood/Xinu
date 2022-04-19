@@ -348,3 +348,6 @@ cpuid:
 	cpuid
 	popl	%ebx
 	ret			# return value in %eax
+	.globl	ret_k2u
+ret_k2u:
+	iret
