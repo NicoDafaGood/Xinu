@@ -50,7 +50,6 @@ void	nulluser()
 	struct	memblk	*memptr;	/* Ptr to memory block		*/
 	uint32	free_mem;		/* Total amount of free memory	*/
 	
-	set_evec(0x21, (uint32)syscall_handler);
 
 	/* Initialize the system */
 
@@ -83,7 +82,7 @@ void	nulluser()
 
 	/* Create a process to finish startup and start main */
 
-	resume(create((void *)startup, INITSTK, INITPRIO,
+	resume(create((void *)startup, INITSTK, INITPRIO, 
 					"Startup process", 0, NULL));
 
 	/* Become the Null process (i.e., guarantee that the CPU has	*/
@@ -109,8 +108,7 @@ void	nulluser()
 local process	startup(void)
 {
 	/* Create a process to execute function main() */
-
-	syscall_resume(syscall_create((void *)main, INITPRIO,
+	syscall_resume(syscall_create((void *)main, INITSTK, INITPRIO,
 					"Main process", 0, NULL));
 
 	/* Startup process exits at this point */

@@ -43,6 +43,7 @@ pid32	create(
 	prptr->prstate = PR_SUSP;	/* Initial state is suspended	*/
 	prptr->prprio = priority;
 	prptr->prstkbase = (char *)saddr;
+	prptr->prustkbase = (char *) usaddr;
 	prptr->prstklen = ssize;
 	prptr->prname[PNMLEN-1] = NULLCH;
 	for (i=0 ; i<PNMLEN-1 && (prptr->prname[i]=name[i])!=NULLCH; i++)
@@ -65,17 +66,21 @@ pid32	create(
 		*--usaddr = *a--;	/* onto created process's stack	*/
 
 	*--usaddr = (long)INITRET;
+	prptr->prustkptr = usaddr;
 	savusp = usaddr;
-	prptr->prstkptr = usaddr;
+	
 	/* Initialize kernel stack as if the process was called		*/
 
 	*saddr = STACKMAGIC;
 	savsp = (uint32)saddr;
-
+	// a = (uint32 *)(&nargs + 1);	/* Start of args		*/
+	// a += nargs -1;			/* Last argument		*/
+	// for ( ; nargs > 0 ; nargs--)	/* Machine dependent; copy args	*/
+	// 	*--usaddr = *a--;	/* onto created process's stack	*/
 	/* Push arguments */
 	
 	*--saddr = (long)INITRET;	/* Push on return address	*/
-
+	prptr->prkstkptr = saddr;
 	*--saddr = 0x33;
 	*--saddr = savusp;
 	*--saddr = 0x00000200;

@@ -202,13 +202,13 @@ void	setsegs()
 
 
 	psd = &gdt_copy[7];	/* USER TSS*/
-	memset(&tss_array[0], 0, sizeof(struct tss_entry_struct_t));
-    tss_array[0].iomap_base = sizeof(struct tss_entry_struct_t);
 	tss_array[0].ss0 = 0x3<<3;
 	tss_array[0].esp0 = 0;
 
-	psd->sd_lolimit = sizeof(struct tss_entry_struct_t);
-	psd->sd_hilim_fl = ((sizeof(struct tss_entry_struct_t) & (0xf << 16)) >> 16);
+	psd->sd_lolimit = 0xffff & (sizeof(struct tss_entry_struct_t) - 1);
+	psd->sd_midbase = ((uint32)&tss_array[0] & (0xff << 16)) >> 16;
+	psd->sd_access  = 0x89;
+	psd->sd_hilim_fl = 0x00;
 	psd->sd_hibase = ((uint32)&tss_array[0] & (0xff << 24)) >> 24;
 	psd->sd_lobase = (uint32)&tss_array[0] ;
 	memcpy(gdt, gdt_copy, sizeof(gdt_copy));

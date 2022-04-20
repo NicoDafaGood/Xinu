@@ -18,6 +18,8 @@ const void *syscalls[] = {
 	&control,		// 12
 	&kill,			// 13
 	&getpid,		// 14
+	&disable,		// 15
+	&restore,		// 16
 	NULL,
 };
 

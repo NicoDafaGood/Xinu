@@ -33,12 +33,12 @@ status	addargs(
 	uint32	*aptr;			/* Walks through args array	*/
 	int32	i;			/* Index into tok array		*/
 
-	mask = disable();
+	mask = syscall_disable();
 
 	/* Check argument count and data length */
 
 	if ( (ntok <= 0) || (tlen < 0) ) {
-		restore(mask);
+		syscall_restore(mask);
 		return SYSERR;
 	}
 
@@ -74,20 +74,20 @@ status	addargs(
 
 	/* Find the second argument in process's stack */
 
-	for (search = (uint32 *)prptr->prstkptr;
-	     search < (uint32 *)prptr->prstkbase; search++) {
+	for (search = (uint32 *)prptr->prustkptr;
+	     search < (uint32 *)prptr->prustkbase; search++) {
 
 		/* If found, replace with the address of the args vector*/
 
 		if (*search == (uint32)dummy) {
 			*search = (uint32)argloc;
-			restore(mask);
+			syscall_restore(mask);
 			return OK;
 		}
 	}
 
 	/* Argument value not found on the stack - report an error */
 
-	restore(mask);
+	syscall_restore(mask);
 	return SYSERR;
 }

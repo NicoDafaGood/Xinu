@@ -472,6 +472,8 @@ _Xint46:
 
 	.globl  syscall_handler
 syscall_handler:
+	pushl   %ebx
+	movl	%esp,%ebx
 START_1:
 	cmpl 	$0, %ecx
 	je   	END_1
@@ -480,9 +482,9 @@ START_1:
 	addl  	$-1, %ecx
 	jmp		START_1
 END_1:
-	pushl	%ebx
 	call 	%esi
-	popl  	%ebx
+	movl	%ebx,%esp
+	popl	%ebx
 	movl	%eax, (%ebx)
 	iret
 
@@ -528,7 +530,7 @@ defevec:
 	.long	_Xint30			/* (reserved)			*/
 	.long	_Xint31			/* (reserved)			*/
 	.long	_Xint32			/* available for ext. interrupt	*/
-	.long	_Xint33			/* available for ext. interrupt	*/
+	.long	syscall_handler	/* available for ext. interrupt	*/
 	.long	_Xint34			/* available for ext. interrupt	*/
 	.long	_Xint35			/* available for ext. interrupt	*/
 	.long	_Xint36			/* available for ext. interrupt	*/

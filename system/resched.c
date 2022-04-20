@@ -42,7 +42,7 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	ptnew = &proctab[currpid];
 	ptnew->prstate = PR_CURR;
 	preempt = QUANTUM;		/* Reset time slice for process	*/
-	// tss_array[0].esp0 = ptnew->prstkptr;
+	tss_array[0].esp0 = ptnew->prkstkptr;
 	// (tss_array);
 	ctxsw(&ptold->prstkptr, &ptnew->prstkptr);
 

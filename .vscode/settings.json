@@ -17,7 +17,10 @@
         "clock.h": "c",
         "semaphore.h": "c",
         "date.h": "c",
-        "memory.h": "c"
+        "memory.h": "c",
+        "conf.h": "c",
+        "bufpool.h": "c",
+        "shprototypes.h": "c"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

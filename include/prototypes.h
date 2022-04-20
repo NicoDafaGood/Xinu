@@ -117,6 +117,8 @@ extern	uint16	getirmask(void);
 
 /* in file intutils.S */
 extern	intmask	disable(void);
+#define syscall_disable(...) \
+		do_argless_syscall(syscall, SYSCALL_DISABLE)
 extern	void	enable(void);
 
 /* in file ioerr.c */
@@ -216,6 +218,10 @@ extern	devcall	lpread(struct dentry *, char *, int32);
 
 /* in file lpwrite.c */
 extern	devcall	lpwrite(struct dentry *, char *, int32);
+
+
+/* in file start.S */
+extern  void ltss(uint32);
 
 /* in file mark.c */
 extern	void	markinit(void);
@@ -336,6 +342,8 @@ extern	status	resched_cntl(int32);
 
 /* in file intutils.S */
 extern	void	restore(intmask);
+#define syscall_restore(...) \
+		do_argless_syscall(syscall, SYSCALL_RESTORE)
 
 /* in file resume.c */
 extern	pri16	resume(pid32);

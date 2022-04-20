@@ -105,6 +105,8 @@ int32	set_evec(uint32 xnum, uint32 handler)
 	pidt->igd_present = 1;
 	pidt->igd_hoffset = handler >> 16;
 
+	if (xnum == 0x21)
+		pidt->igd_dpl = 3;
 	if (xnum > 31 && xnum < 48) {
 		/* Enable the interrupt in the global IR mask */
 		xnum -= 32;
