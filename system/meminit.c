@@ -212,4 +212,4 @@ void	setsegs()
 	psd->sd_hibase = ((uint32)&tss_array[0] & (0xff << 24)) >> 24;
 	psd->sd_lobase = (uint32)&tss_array[0] ;
 	memcpy(gdt, gdt_copy, sizeof(gdt_copy));
-}
+}	
