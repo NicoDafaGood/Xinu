@@ -470,6 +470,68 @@ _Xint46:
 	pushl	$46
 	jmp	Xtrap
 
+
+	.globl  main
+main:
+	endbr32 
+   	push   %ebp
+  	mov    %esp,%ebp
+   	sub    $0x8,%esp
+   	sub    $0x8,%esp
+   	push   $0x0
+   	push   $0x3
+   	call   do_syscall
+   	add    $0x10,%esp
+   	push   $0x0
+   	push   $0x1
+   	push   $0x10ca2c
+   	push   $0x32
+   	push   $0x2000
+   	push   $0x10a068
+   	push   $0x6
+   	push   $0x1
+   	call   do_syscall
+   	add    $0x20,%esp
+   	sub    $0x4,%esp
+   	push   %eax
+   	push   $0x1
+   	push   $0x2
+   	call   do_syscall
+   	add    $0x10,%esp
+   	mov    $0x1,%eax
+  	leave  
+   	ret    
+
+	.globl  do_syscall
+do_syscall:
+	endbr32 
+   	push   %ebp
+   	mov    %esp,%ebp
+   	push   %esi
+   	push   %ebx
+   	 sub    $0x10,%esp
+   	lea    -0x18(%ebp),%eax
+   	mov    %eax,-0xc(%ebp)
+   	mov    0xc(%ebp),%eax
+   	lea    0x0(,%eax,4),%edx
+   	lea    0xc(%ebp),%eax
+   	add    %edx,%eax
+  	mov    %eax,-0x10(%ebp)
+   	mov    0x8(%ebp),%eax
+   	mov    0x1119a0(,%eax,4),%eax
+   	mov    %eax,-0x14(%ebp)
+	mov    0xc(%ebp),%eax
+   	mov    -0x14(%ebp),%esi
+   	mov    -0xc(%ebp),%ebx
+   	mov    %eax,%ecx
+   	mov    -0x10(%ebp),%edx
+   	int    $0x21
+   	mov    -0x18(%ebp),%eax
+   	add    $0x10,%esp
+   	pop    %ebx
+   	pop    %esi
+   	pop    %ebp
+   	ret   
 	.globl  syscall_handler
 syscall_handler:
 	pushl   %ebx
@@ -482,7 +544,7 @@ START_1:
 	addl  	$-1, %ecx
 	jmp		START_1
 END_1:
-	call 	%esi
+	call 	*%esi
 	movl	%ebx,%esp
 	popl	%ebx
 	movl	%eax, (%ebx)

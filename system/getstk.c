@@ -11,8 +11,6 @@ char  	*getstk(
 	)
 {
 	intmask	mask;			/* Saved interrupt mask		*/
-	struct	memblk	*prev, *curr;	/* Walk through memory list	*/
-	struct	memblk	*fits, *fitsprev; /* Record block that fits	*/
 
 	mask = disable();
 	if (nbytes == 0) {
@@ -20,33 +18,58 @@ char  	*getstk(
 		return (char *)SYSERR;
 	}
 
-	nbytes = (uint32) roundmb(nbytes);	/* Use mblock multiples	*/
-
-	prev = &memlist;
-	curr = memlist.mnext;
-	fits = NULL;
-	fitsprev = NULL;  /* Just to avoid a compiler warning */
-
-	while (curr != NULL) {			/* Scan entire list	*/
-		if (curr->mlength >= nbytes) {	/* Record block address	*/
-			fits = curr;		/*   when request fits	*/
-			fitsprev = prev;
+	nbytes = (uint32) roundpage(nbytes);	/* Use mblock multiples	*/
+	for(int i =1015;i>2;i--)
+	{
+		PDirEntry_t* page_dir = get_dir_address();
+		if(!page_dir[i].present)
+		{
+			page_dir[i].address = get_page()>>12;
+			page_dir[i].present = 1;
+			init_table(get_table_address(i));
 		}
-		prev = curr;
-		curr = curr->mnext;
+		for(int j =1023;j>=0;)
+		{
+			int k = j-1;
+			PTableEntry_t* now = get_table_address(i);
+			if(now[j].present)
+			{
+				j = k;
+				continue;
+			}
+			int flag  = 0;
+			while((j-k)<nbytes/4096)
+			{
+				if(k<0)
+				{
+					flag = 1;
+					break;
+				}
+				now = get_table_address(i);
+				if(now[k].present)
+				{
+					flag = 1;
+					break;
+				}
+				k--;
+			}
+			
+			if(!flag)
+			{
+				for(int x = k + 1 ; x <= j; x++)
+				{
+					now = get_table_address(i);
+					now[x].address = get_page() >> 12; 
+					now[x].present = 1;
+				}
+				restore(mask);
+				return MAKEVAD(i,j,(1<<12)-4);
+			}
+			j = k;
+		}
 	}
 
-	if (fits == NULL) {			/* No block was found	*/
-		restore(mask);
-		return (char *)SYSERR;
-	}
-	if (nbytes == fits->mlength) {		/* Block is exact match	*/
-		fitsprev->mnext = fits->mnext;
-	} else {				/* Remove top section	*/
-		fits->mlength -= nbytes;
-		fits = (struct memblk *)((uint32)fits + fits->mlength);
-	}
-	memlist.mlength -= nbytes;
+	panic("no memory");
 	restore(mask);
-	return (char *)((uint32) fits + nbytes - sizeof(uint32));
+	return NULL;
 }

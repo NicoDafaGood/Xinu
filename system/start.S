@@ -52,7 +52,7 @@
 #define	GDT_BYTES		(GDT_ENTRIES * GDT_ENTRY_SIZE)
 #define	IDT_ENTRIES		256
 #define	IDT_ENTRY_SIZE		8
-#define	IDT_BYTES		(IDT_ENTRIES * IDT_ENTRY_SIZE)
+#define	IDT_BYTES		(IDT_ENTRIES * IDT_ENTRY_SIZE)		
 #define NULLSTK			(8192)		/* This must match NULLSTK defined in kernel.h 		*/
 
 	.data
@@ -113,66 +113,12 @@ start:
 	addl	%ecx, %edx
 	movl	$0x0, %esp		# Initialize stack pointer to some small value
 
-mmap_search_start:
-	cmpl	%edx, %ecx		# If mmap_addr >= mmap_end then quit
-	jae	mmap_search_done
+	movl	$end, %esp
+	addl	8188, %esp
 
-	# skip memory segment if it is not usable
-	movl	20(%ecx), %eax		# Test the address block type
-	cmpl	$0x01, %eax		# If type is not equal to 1
-	jne	mmap_search_next_sgmt	#   then this is not a usable block
 
-	# skip memory segment if it is within the memory for Xinu
-	movl	4(%ecx), %eax		# Load memory address of segment
-	movl	12(%ecx), %ebx		# Load segment size
-	add	%ebx, %eax		# Find end of memory segment
-	movl	$end, %ebx		# Load end of xinu
-	cmpl	%ebx, %eax		# Compare segment and xinu end
-	jle	mmap_search_next_sgmt	# Skip if segment is within xinu
-	
-	# Segment is usable and not within xinu memory region
-	#   Check if it is big enough to hold the null stack
-	#   Subtract off any memory location that overlaps the
-	#     the Xinu memory region
-	movl	4(%ecx), %eax		# Load memory address of segment
-	movl	$end, %ebx		# Load end of xinu
-	subl	%eax, %ebx		# Determine overlap
-	movl	12(%ecx), %eax		# Load segment size
-	cmpl	$0x0, %ebx		# Check if overlap is greater than zero
-	jl	mmap_search_no_overlap
-	subl	%ebx, %eax		# Subtract overlap size
-mmap_search_no_overlap:
-	cmpl	$NULLSTK, %eax		# Compare with nullstack size
-	jl	mmap_search_next_sgmt
-	
-	# Segment is big enough to hold the null stack
-	#   want to save the highest possible address
-	#   check if segment is larger than current stack pointer
-	movl	4(%ecx), %eax		# Load memory address of segment
-	movl	12(%ecx), %ebx		# Load segment size
-	addl	%ebx, %eax		# Retrieve segment end
-	cmpl	%esp, %eax		# Compare segment and stack pointer
-	jl	mmap_search_next_sgmt	# Skip segment if less than
-	
-	# Segment is big enough to hold the nullstack
-	#   and larger than the current stack pointer
-	#   Use the end of the new segment as the null stack
-	#     Round to the nearest block and subtract 4 (for STACKMAGIC)
-	movl	%eax, %esp
-	addl	$0x7, %esp
-	andl	$0xFFFFFFF8, %esp
-	subl	$0x4, %esp
-
-mmap_search_next_sgmt:
-	movl	(%ecx), %eax		# Load the entry_size
-	addl	%eax, %ecx		# mmap_addr += entry_size + 4
-	addl	$0x4, %ecx
-	jmp	mmap_search_start
-	
-mmap_search_done:
-
-	# Stack pointer set continue with boot
 	movl	%esp, %ebp
+	# Stack pointer set continue with boot
 	
 	/*
 	 * Clear flags.
@@ -219,6 +165,16 @@ gdt1:
 	/*
 	 * Call the nulluser to initialize the system
 	 */
+
+	call vminit
+
+	movl %eax, %cr3
+	movl %cr0, %eax
+	orl $0x80000000, %eax
+	# orl $(CR0_WP), %eax 
+	movl %eax, %cr0
+
+	
 	call	nulluser
 	call	halt
 

@@ -25,7 +25,7 @@ const void *syscalls[] = {
 
 // Syscall wrapper for doing syscall in user space
 
-uint32 do_syscall(uint32 id, uint32 args_count, ...) {
+uint32 do_syscall1(uint32 id, uint32 args_count, ...) {
 	uint32 return_value;
 
 	// You may need to pass these veriables to kernel side:

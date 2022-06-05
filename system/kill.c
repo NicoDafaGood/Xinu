@@ -30,7 +30,16 @@ syscall	kill(
 		close(prptr->prdesc[i]);
 	}
 	freestk(prptr->prstkbase, prptr->prstklen);
-
+	freemem(end, 8192);
+	PDirEntry_t* dir_ptr = get_dir_address();
+	for(int i = 0;i<1024;i++)
+	{
+		if(dir_ptr[i].present == 1)
+		{
+			add_page(dir_ptr[i].address<<12);
+		} 
+	}
+	add_page(dir_ptr[2].address<<12);
 	switch (prptr->prstate) {
 	case PR_CURR:
 		prptr->prstate = PR_FREE;	/* Suicide */
@@ -57,3 +66,8 @@ syscall	kill(
 	restore(mask);
 	return OK;
 }
+/*
+file xinu.elf
+target remote :1234
+qemu-system-i386 -nographic -serial mon:stdio -S -s -kernel xinu.elf
+*/
