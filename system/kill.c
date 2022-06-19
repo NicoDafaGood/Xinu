@@ -29,8 +29,8 @@ syscall	kill(
 	for (i=0; i<3; i++) {
 		close(prptr->prdesc[i]);
 	}
-	freestk(prptr->prstkbase, prptr->prstklen);
-	freemem(end, 8192);
+	freestk(prptr->prustkbase, prptr->prstklen);
+	freestk(prptr->prstkbase, 8192);
 	PDirEntry_t* dir_ptr = get_dir_address();
 	for(int i = 0;i<1024;i++)
 	{

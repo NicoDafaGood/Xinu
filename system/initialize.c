@@ -172,11 +172,12 @@ static	void	sysinit()
 	prptr->prstate = PR_CURR;
 	prptr->prprio = 0;
 	strncpy(prptr->prname, "prnull", 7);
-	prptr->prstkbase = getstk(NULLSTK);
+	prptr->prstkbase = getstk(NULLSTK,0);
 	prptr->prstklen = NULLSTK;
 	prptr->prstkptr = 0;
 	currpid = NULLPROC;
-	
+	prptr->cr3 = VM_to_PM(get_dir_address());
+
 	/* Initialize semaphores */
 
 	for (i = 0; i < NSEM; i++) {

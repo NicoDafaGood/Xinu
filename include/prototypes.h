@@ -86,7 +86,7 @@ extern	pid32	getpid(void);
 extern	syscall	getprio(pid32);
 
 /* in file getstk.c */
-extern	char	*getstk(uint32);
+extern	char	*getstk(uint32,uint32);
 
 /* in file getticks.c */
 extern	void	getticks(uint64 *);

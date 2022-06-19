@@ -14,9 +14,9 @@
  *----------------------------------------------------------------------
  */
 #define	freestk(p,len)	freemem((char *)((uint32)(p)		\
-				- ((uint32)roundmb(len))	\
+				- ((uint32)roundpage(len))	\
 				+ (uint32)sizeof(uint32)),	\
-				(uint32)roundmb(len) )
+				(uint32)roundpage(len) )
 
 #define	roundpage(x)	(char *)( (4095 + (uint32)(x)) & (~4095) )
 #define	truncpage(x)	(char *)( ((uint32)(x)) & (~4095) )

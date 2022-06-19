@@ -55,7 +55,9 @@ struct procent {		/* Entry in the process table		*/
 	char   *prkstkptr; 
     char   *prustkptr;
     char   *prustkbase;  
-    void* cr3;
+    void   *cr3;
+    char   *childstkptr;   
+    char   *childstkbase; 
 };
 
 /* Marker for the top of a process stack (used to help detect overflow)	*/

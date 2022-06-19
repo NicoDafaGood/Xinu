@@ -24,7 +24,7 @@ status	addargs(
 	struct	procent *prptr;		/* Ptr to process' table entry	*/
 	uint32	aloc;			/* Argument location in process	*/
 					/*   stack as an integer	*/
-	uint32	*argloc;		/* Location in process's stack	*/
+	uint32	*argloc ,*new_argloc;		/* Location in process's stack	*/
 					/*   to place args vector	*/
 	char	*argstr;		/* Location in process's stack	*/
 					/*   to place arg strings	*/
@@ -48,13 +48,13 @@ status	addargs(
 	/*	args array will be stored followed by the argument	*/
 	/*	strings							*/
 	
-	aloc = (uint32) (prptr->prstkbase
+	aloc = (uint32) (prptr->childstkbase
 		- prptr->prstklen + sizeof(uint32));
 	argloc = (uint32*) ((aloc + 3) & ~0x3);	/* round multiple of 4	*/
-
+	new_argloc = prptr->prustkbase - prptr->prstklen + sizeof(uint32);
 	/* Compute the first location beyond args array for the strings	*/
 
-	argstr = (char *) (argloc + (ntok+1));	/* +1 for a null ptr	*/
+	argstr = (char *) (new_argloc + (ntok+1));	/* +1 for a null ptr	*/
 
 	/* Set each location in the args vector to be the address of	*/
 	/*	string area plus the offset of this argument		*/
@@ -74,13 +74,13 @@ status	addargs(
 
 	/* Find the second argument in process's stack */
 
-	for (search = (uint32 *)prptr->prustkptr;
-	     search < (uint32 *)prptr->prustkbase; search++) {
+	for (search = (uint32 *)prptr->childstkptr;
+	     search < (uint32 *)prptr->childstkbase; search++) {
 
 		/* If found, replace with the address of the args vector*/
 
 		if (*search == (uint32)dummy) {
-			*search = (uint32)argloc;
+			*search = (uint32)new_argloc;
 			syscall_restore(mask);
 			return OK;
 		}

@@ -7,7 +7,8 @@
  *------------------------------------------------------------------------
  */
 char  	*getstk(
-	  uint32	nbytes		/* Size of memory requested	*/
+	  uint32	nbytes,		/* Size of memory requested	*/
+	  uint32 	user_access
 	)
 {
 	intmask	mask;			/* Saved interrupt mask		*/
@@ -26,6 +27,7 @@ char  	*getstk(
 		{
 			page_dir[i].address = get_page()>>12;
 			page_dir[i].present = 1;
+			page_dir[i].allow_user_access = 1;
 			init_table(get_table_address(i));
 		}
 		for(int j =1023;j>=0;)
@@ -61,6 +63,7 @@ char  	*getstk(
 					now = get_table_address(i);
 					now[x].address = get_page() >> 12; 
 					now[x].present = 1;
+					now[x].allow_user_access = user_access;
 				}
 				restore(mask);
 				return MAKEVAD(i,j,(1<<12)-4);

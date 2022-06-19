@@ -30,11 +30,14 @@ pid32	create(
 		ssize = MINSTK;
 	ssize = (uint32) roundpage(ssize);
 	if ( (priority < 1) || ((pid=newpid()) == SYSERR) ||
-	     ((saddr = (uint32 *)getstk(8192)) == (uint32 *)SYSERR) || 
-		 ((usaddr = (uint32 *)getstk(ssize)) == (uint32 *)SYSERR) ) {
+	     ((saddr = (uint32 *)getstk(8192,0)) == (uint32 *)SYSERR) || 
+		 ((usaddr = (uint32 *)getstk(ssize,1)) == (uint32 *)SYSERR) ) {
 		restore(mask);
 		return SYSERR;
 	}
+
+	
+
 	PDirEntry_t* new_dir = (PDirEntry_t*)getmem(4096);
 	PTableEntry_t* new_table = (PTableEntry_t*)getmem(4096);
 	PTableEntry_t* tmp = new_table;
@@ -104,6 +107,7 @@ pid32	create(
 	prptr->prustkbase = (char *) new_usaddr;
 	prptr->prstklen = ssize;
 	prptr->prname[PNMLEN-1] = NULLCH;
+	prptr->childstkbase = usaddr;
 	for (i=0 ; i<PNMLEN-1 && (prptr->prname[i]=name[i])!=NULLCH; i++)
 		;
 	prptr->prsem = -1;
@@ -125,6 +129,7 @@ pid32	create(
 
 	*--usaddr = (long)INITRET;	--new_usaddr;
 	prptr->prustkptr = new_usaddr;
+	prptr->childstkptr = usaddr ;
 	savusp = new_usaddr;
 	
 	/* Initialize kernel stack as if the process was called		*/
@@ -138,7 +143,7 @@ pid32	create(
 	/* Push arguments */
 	
 	*--saddr = (long)INITRET;	--new_saddr;/* Push on return address	*/
-	prptr->prkstkptr = saddr;	
+	prptr->prkstkptr = new_saddr;	
 	*--saddr = 0x33;			--new_saddr;
 	*--saddr = savusp;			--new_saddr;
 	*--saddr = 0x00000200;		--new_saddr;
