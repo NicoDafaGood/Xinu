@@ -39,7 +39,6 @@ syscall	kill(
 			add_page(dir_ptr[i].address<<12);
 		} 
 	}
-	add_page(dir_ptr[2].address<<12);
 	switch (prptr->prstate) {
 	case PR_CURR:
 		prptr->prstate = PR_FREE;	/* Suicide */
