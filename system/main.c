@@ -18,6 +18,8 @@ process	main(void)
 		syscall_printf("\n\nMain process recreating shell\n\n");
 		syscall_resume(syscall_create(shell, 4096, 20, "shell", 1, CONSOLE));
 	}
+	// while(1)
+	// {}
 	return OK;
     
 }

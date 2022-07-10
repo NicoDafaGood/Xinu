@@ -85,6 +85,8 @@ mbootheader:  				# Beginning of multiboot header, embedded in ELF header
    	.long   bss			# load end address
 	.long   ebss			# bss end address
 	.long   start			# Entry address: end of multiboot header, end of a.out kludge
+	# .long 	1				# mode_type
+	# .long 	0,0,0			# width, height, depth
 
 	.globl	start
 start:

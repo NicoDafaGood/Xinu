@@ -39,7 +39,7 @@ uint32 do_syscall(uint32 id, uint32 args_count, ...) {
            "movl  %1,%%ebx\n"
 		   "movl  %2,%%ecx\n"
 		   "movl  %3,%%edx\n"
-		   "int   $0x21\n"
+		   "int   $0x2e\n"
           :
           :"g"(funcaddr),"g"(ptr_return_value),"g"(args_count),"g"(args_array)      /* input */
           :"esi","ebx","ecx","edx");

@@ -520,7 +520,7 @@ _Xint46:
 #    	mov    0x8(%ebp),%eax
 #    	mov    0x1119a0(,%eax,4),%eax
 #    	mov    %eax,-0x14(%ebp)
-# 	mov    0xc(%ebp),%eax
+# 		mov    0xc(%ebp),%eax
 #    	mov    -0x14(%ebp),%esi
 #    	mov    -0xc(%ebp),%ebx
 #    	mov    %eax,%ecx
@@ -592,7 +592,7 @@ defevec:
 	.long	_Xint30			/* (reserved)			*/
 	.long	_Xint31			/* (reserved)			*/
 	.long	_Xint32			/* available for ext. interrupt	*/
-	.long	syscall_handler	/* available for ext. interrupt	*/
+	.long	kbddisp			/* available for ext. interrupt	*/
 	.long	_Xint34			/* available for ext. interrupt	*/
 	.long	_Xint35			/* available for ext. interrupt	*/
 	.long	_Xint36			/* available for ext. interrupt	*/
@@ -605,5 +605,5 @@ defevec:
 	.long	_Xint43			/* available for ext. interrupt	*/
 	.long	_Xint44			/* available for ext. interrupt	*/
 	.long	_Xint45			/* available for ext. interrupt	*/
-	.long	_Xint46			/* available for ext. interrupt	*/
+	.long	syscall_handler	/* available for ext. interrupt	*/
 	.long	spurious_irq15

@@ -20,7 +20,8 @@
         "memory.h": "c",
         "conf.h": "c",
         "bufpool.h": "c",
-        "shprototypes.h": "c"
+        "shprototypes.h": "c",
+        "kbd.h": "c"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

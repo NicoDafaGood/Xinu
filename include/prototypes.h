@@ -381,6 +381,12 @@ extern	syscall	signaln(sid32, int32);
 extern	syscall	sleepms(int32);
 extern	syscall	sleep(int32);
 
+extern devcall  kbdgetc(struct dentry *devptr);
+extern	devcall	kbdinit(void);
+extern devcall	kbdread(struct dentry *devptr,char *buff,int32 count);
+extern	devcall	fbputc(struct dentry *,char);
+extern	interrupt	kbddisp(void);
+
 #define syscall_sleepms(...) \
 		do_generic_syscall(syscall, SYSCALL_SLEEPMS, __VA_ARGS__)
 #define syscall_sleep(...) \

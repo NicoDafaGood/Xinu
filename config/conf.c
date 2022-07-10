@@ -19,12 +19,12 @@ struct	dentry	devtab[NDEVS] =
  * dev-csr-address, intr-handler, irq
  */
 
-/* CONSOLE is tty */
+/* CONSOLE is kbdvga */
 	{ 0, 0, "CONSOLE",
-	  (void *)ttyinit, (void *)ionull, (void *)ionull,
-	  (void *)ttyread, (void *)ttywrite, (void *)ioerr,
-	  (void *)ttygetc, (void *)ttyputc, (void *)ttycontrol,
-	  (void *)0x3f8, (void *)ttydispatch, 36 },
+	  (void *)kbdinit, (void *)ionull, (void *)ionull,
+	  (void *)kbdread, (void *)ionull, (void *)ioerr,
+	  (void *)kbdgetc, (void *)fbputc, (void *)ionull,
+	  (void *)0x3d4, (void *)kbddisp, 33 },
 
 /* NULLDEV is null */
 	{ 1, 0, "NULLDEV",
